@@ -26,4 +26,4 @@ or
 you can create user using command line.
 
 
-here you can visit app using web interface and also you can using api request using postman.
+here you can visit app using web interface
