@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}My favourite{% endblock %}
+
+{% block body %}
+    <div class="ui stackable grid">
+        <div class="eight wide centered column" style="margin-top: 30px;">
+            <h2>My Favourites</h2>
+            {% if favs %}
+                <h3>SHOWING {{ currently_displayed_lower }} - {{ currently_displayed_upper }} of {{ pallete_count }} COLOR PALLETES</h3>
+
+                <table class="ui celled table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for p in favs %}
+                            <tr>
+                                <td>{{ p.pallete.name }}</td>
+                                <td>
+                                    <a href="{% url 'home:color_detail' id=p.pallete.id %}" class="ui blue tiny button">Detail</a>
+                                    <a href="{% url 'home:remove_favourite' id=p.id %}" class="ui red tiny button">Remove</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!--pagination-->
+                {% if favs.has_other_pages %}
+                <div class="ui pagination menu">
+                    {% if favs.has_previous %}
+                        <a href="?page={{ favs.previous_page_number }}" class="item">
+                            <i class="angle double left icon"></i>
+                        </a>
+                    {% else %}
+                        <p>
+
+                        </p>
+                    {% endif %}
+
+                    {% for pg in page_range %}
+                        {% if favs.number == pg %}
+                            <a href="?page={{ pg }}" class="active item">
+                                {{ pg }}
+                            </a>
+                        {% else %}
+                            <a href="?page={{ pg }}" class="item">
+                                {{ pg }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if favs.has_next %}
+                        <a href="?page={{ favs.next_page_number }}" class="item">
+                            <i class="angle double right icon"></i>
+                        </a>
+                    {% else %}
+                        <p class="item">
+                            <i class="angle double right disabled icon"></i>
+                        </p>
+                    {% endif %}
+
+                </div>
+                {% endif %}
+
+
+
+                <!--end pagination-->
+            {% else %}
+                <h3>Not any color pallete found!</h3>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}
+

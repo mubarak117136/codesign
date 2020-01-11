@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load staticfiles %}
+    <meta charset="UTF-8">
+    <title>{% block title %}<!-- title for pages -->{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+
+    <style>
+        .container{
+            min-width: 100%;
+        }
+
+        .container > .row {
+            margin: 0;
+        }
+
+
+        .container > .row > .col {
+            padding: 0;
+        }
+
+        *{
+            padding: 0px;
+            margin: 0px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 13px;
+        }
+
+        .footer_bottom_link_text a:hover{
+            text-decoration: underline;
+        }
+
+        .signin_a{
+            color: grey;
+        }
+
+        .signin_a:hover{
+            color: white;
+            text-decoration: underline;
+        }
+    </style>
+
+    {% block style %}
+        <!--add css for other individual pages -->
+    {% endblock %}
+
+<body>
+    <!--nav-->
+    <div class="ui stackable grid tablet or lower hidden" style="">
+        <div class="sixteen wide column" style="background: #232F3E; padding: 10px;">
+            <div class="ui stackable grid" style="">
+                <div class="ten wide centered column" style="">
+
+
+                    <div class="ui secondary mini menu" style="margin-top: 13px;">
+                        <a href="{% url 'home:index' %}" class="item" style="color: white; font-size: 17px; font-weight: bold;">
+                            COLORS
+                        </a>
+
+                        <a href="{% url 'home:index' %}" class="item" style="color: white;">
+                            All
+                        </a>
+
+                        {% if request.user.is_authenticated %}
+                            <a href="{% url 'home:favourite' %}" class="item" style="color: white;">
+                                Favourites
+                            </a>
+                        {% endif %}
+
+                        <div class="right menu">
+                            {% if request.user.is_authenticated %}
+                                <a href="{% url 'home:my_pallete' %}" class="ui item" style="color: white;">
+                                    {{ request.user.username | title }}
+                                </a>
+
+                                <a href="{% url 'account:sign_out' %}" class="ui item" style="color: white; margin-right: 10px;">
+                                    Sign out
+                                </a>
+                            {% else %}
+                                <a href="{% url 'account:sign_in' %}" class="ui item" style="color: white;">
+                                    <i class="user icon"></i>
+                                    Sign in
+                                </a>
+                            {% endif %}
+
+                            {% if request.user.is_authenticated %}
+                                <div class="ui item" style="color: white;">
+                                    <a href="{% url 'home:create_color' %}" class="ui red button" id="create_color_pallete" style="color: white;">Create color palette</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end nav-->
+
+    {% block body %}
+        <!--content for other pages-->
+    {% endblock %}
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    {% block script %}
+        <!--js for other pages-->
+    {% endblock %}
+</body>
+</html>

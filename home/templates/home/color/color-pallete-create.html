@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Create your color pallete{% endblock %}
+
+{% block body %}
+    <div class="ui stackable grid">
+        <div class="eight wide centered column" style="margin-top: 30px;">
+            <div class="ui segment">
+                <form class="ui form" method="post" id="color_pallete_form">
+                    <h2>Create your color pallete</h2>
+                    <div class="ui divider"></div>
+                    {% csrf_token %}
+
+                    <div class="field">
+                        <label>* Pallete name</label>
+                        <input type="text" name="name" placeholder="Color pallete name">
+
+                        <div id="name_err_msg" style="margin-top: 10px; margin-bottom: 20px;">
+
+                        </div>
+                    </div>
+
+                    <div class="field" style="margin-top: 20px;">
+                        <label>* Dominent color (max 2)</label>
+
+                        <div id="dominent_fields">
+
+                        </div>
+
+                        <button type="button" class="ui mini icon button add_dominent">
+                            <i class="plus icon"></i>
+                        </button>
+
+                        <div id="dominant_err_msg" style="margin-top: 10px; margin-bottom: 20px;">
+
+                        </div>
+                    </div>
+
+                    <div class="field" style="margin-top: 20px;">
+                        <label>* Accent color (max 4)</label>
+
+                        <div id="accent_fields">
+
+                        </div>
+
+                        <button type="button" class="ui mini icon button add_accent">
+                            <i class="plus icon"></i>
+                        </button>
+
+                        <div id="accent_err_msg" style="margin-top: 10px; margin-bottom: 20px;">
+
+                        </div>
+                    </div>
+
+                    <div class="inline field">
+                        <div class="ui toggle checkbox">
+                            <input type="checkbox" name="status" class="hidden">
+                            <label>Private</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="ui blue button">Create</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $('.ui.checkbox').checkbox();
+
+        var addDominent = $('.add_dominent');
+
+        var field_html = '\
+            <div class="two fields dominent_input">\
+                \
+                <div class="field" style="margin-bottom: 10px;">\
+                    <input type="color" name="dominentcolor">\
+                </div>\
+                \
+                <button type="button" class="ui positive mini button remove_button">\
+                    remove\
+                </button> \
+                \
+                \
+            </div>\
+        ';
+
+        $(addDominent).click(function(){
+            $('#dominent_fields').append(field_html);
+        });
+
+        $("#dominent_fields").on('click', '.remove_button', function(e){
+            e.preventDefault();
+            $(this).parent('.dominent_input').remove();
+        });
+
+
+        //accent color js
+        var addAccent = $('.add_accent');
+
+        var field_html_accent = '\
+            <div class="two fields accent_input">\
+                \
+                <div class="field" style="margin-bottom: 10px;">\
+                    <input type="color" name="accentcolor">\
+                </div>\
+                \
+                <button type="button" class="ui positive mini button remove_button">\
+                    remove\
+                </button> \
+                \
+                \
+            </div>\
+        ';
+
+        $(addAccent).click(function(){
+            $('#accent_fields').append(field_html_accent);
+        });
+
+        $("#accent_fields").on('click', '.remove_button', function(e){
+            e.preventDefault();
+            $(this).parent('.accent_input').remove();
+        });
+    </script>
+
+    <script>
+
+        function validate_form(name, dominent_color_counter, accent_color_counter){
+            if(name.length < 1){
+                err_msg = '* Enter name!';
+                html = '\
+					<div class="ui red message">\
+						'+ err_msg +'\
+					</div>\
+                ';
+                $("#name_err_msg").html(' ');
+                $("#name_err_msg").append(html);
+                return false;
+            }else if(name.length > 50){
+                err_msg = '* Name cant be more than 50 characters!';
+                html = '\
+					<div class="ui red message">\
+						'+ err_msg +'\
+					</div>\
+                ';
+                $("#name_err_msg").html(' ');
+                $("#name_err_msg").append(html);
+                return false;
+            }else if(dominent_color_counter < 1){
+                err_msg = '* Add atleast 1 dominent color!';
+                html = '\
+					<div class="ui red message">\
+						'+ err_msg +'\
+					</div>\
+                ';
+                $("#dominant_err_msg").html(' ');
+                $("#dominant_err_msg").append(html);
+                return false;
+            }else if(dominent_color_counter > 2){
+                err_msg = '* You cant add more than 2 dominent color!';
+                html = '\
+					<div class="ui red message">\
+						'+ err_msg +'\
+					</div>\
+                ';
+                $("#dominant_err_msg").html(' ');
+                $("#dominant_err_msg").append(html);
+                return false;
+            }else if(accent_color_counter < 1){
+                err_msg = '* Add atleast 1 accent color!';
+                html = '\
+					<div class="ui red message">\
+						'+ err_msg +'\
+					</div>\
+                ';
+                $("#accent_err_msg").html(' ');
+                $("#accent_err_msg").append(html);
+                return false;
+            }else if(accent_color_counter > 4){
+                err_msg = '* You cant add more than 4 accent color!';
+                html = '\
+					<div class="ui red message">\
+						'+ err_msg +'\
+					</div>\
+                ';
+                $("#accent_err_msg").html(' ');
+                $("#accent_err_msg").append(html);
+                return false;
+            }else{
+                return true;
+            }
+        }
+
+        $("#color_pallete_form").submit(function(e){
+            e.preventDefault();
+            name = $("input[name=name]").val();
+
+            if ($("input[name=status]").is(":checked")){
+                //true means private
+                status = true
+            }else{
+                status = false
+            }
+
+
+            dominent_color_counter = $("input[name=dominentcolor]").length;
+            accent_color_counter = $("input[name=accentcolor]").length;
+
+            dominent_color = $("input[name=dominentcolor]").map(function(){ return {"type": "dominent", "code": $(this).val()} }).get();
+            accent_color = $("input[name=accentcolor]").map(function(){ return {"type": "accent", "code": $(this).val()} }).get();
+
+            validate = validate_form(name, dominent_color_counter, accent_color_counter);
+
+            if(validate){
+                colors = $.merge(dominent_color, accent_color);
+                colors_json = JSON.stringify(colors)
+                $.ajax({
+                    url: '{% url 'home:color_pallete_create_api' %}',
+                    data: {"name": name, "is_private": status, "colors": colors_json, "csrfmiddlewaretoken": "{{ csrf_token }}"},
+                    type: 'post',
+                    dataType: 'json',
+                    success: function (data){
+                        location.href = '/'
+                    },
+                    error: function (jqXHR, exception) {
+                        if (jqXHR.status == 404) {
+                            console.log("404 not found!");
+                        }
+                        console.log(jqXHR)
+                    }
+                });
+
+            }
+        });
+    </script>
+{% endblock %}

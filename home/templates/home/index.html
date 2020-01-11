@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to color.com{% endblock %}
+
+{% block body %}
+    <div class="ui stackable grid">
+        <div class="eight wide centered column" style="margin-top: 30px;">
+            <h2>All Palletes</h2>
+
+            <form method="post" class="ui form" id="search_form">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label>Search</label>
+                    {% if request.GET.q %}
+                        <input type="text" name="q" id="q" placeholder="Enter color name" value="{{ request.GET.q }}">
+                    {% else %}
+                        <input type="text" name="q" id="q" placeholder="Enter color name">
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="ui positive button">Search</button>
+            </form>
+
+            {% if palletes %}
+                <h3>SHOWING {{ currently_displayed_lower }} - {{ currently_displayed_upper }} of {{ pallete_count }} COLOR PALLETES</h3>
+
+                <table class="ui celled table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for pallete in palletes %}
+                            <tr>
+                                <td>{{ pallete.name }}</td>
+                                <td>
+                                    <a href="{% url 'home:color_detail' id=pallete.id %}" class="ui blue tiny button">Detail</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!--pagination-->
+                {% if palletes.has_other_pages %}
+                <div class="ui pagination menu" id="pagination_id">
+                    {% if palletes.has_previous %}
+                        <a href="?page={{ palletes.previous_page_number }}" data-value="{{ palletes.previous_page_number }}" class="item">
+                            <i class="angle double left icon"></i>
+                        </a>
+                    {% else %}
+                        <p>
+
+                        </p>
+                    {% endif %}
+
+                    {% for pg in page_range %}
+                        {% if palletes.number == pg %}
+                            <a href="?page={{ pg }}" data-value="{{ pg }}" class="active item">
+                                {{ pg }}
+                            </a>
+                        {% else %}
+                            <a href="?page={{ pg }}" data-value="{{ pg }}" class="item">
+                                {{ pg }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if palletes.has_next %}
+                        <a href="?page={{ palletes.next_page_number }}" data-value="{{ palletes.next_page_number }}" class="item">
+                            <i class="angle double right icon"></i>
+                        </a>
+                    {% else %}
+                        <p class="item">
+                            <i class="angle double right disabled icon"></i>
+                        </p>
+                    {% endif %}
+
+                </div>
+                {% endif %}
+
+
+
+                <!--end pagination-->
+            {% else %}
+                <h3>Not any color pallete found!</h3>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+		function getAllUrlParams(url) {
+          var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
+
+          var obj = {};
+
+          if (queryString) {
+            queryString = queryString.split('#')[0];
+
+            var arr = queryString.split('&');
+
+            for (var i = 0; i < arr.length; i++) {
+              var a = arr[i].split('=');
+
+              var paramName = a[0];
+              var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
+
+              paramName = paramName.toLowerCase();
+              if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
+
+
+              if (paramName.match(/\[(\d+)?\]$/)) {
+
+
+                var key = paramName.replace(/\[(\d+)?\]/, '');
+                if (!obj[key]) obj[key] = [];
+
+
+                if (paramName.match(/\[\d+\]$/)) {
+                  // get the index value and add the entry at the appropriate position
+                  var index = /\[(\d+)\]/.exec(paramName)[1];
+                  obj[key][index] = paramValue;
+                } else {
+                  // otherwise add the value to the end of the array
+                  obj[key].push(paramValue);
+                }
+              } else {
+                // we're dealing with a string
+                if (!obj[paramName]) {
+                  // if it doesn't exist, create property
+                  obj[paramName] = paramValue;
+                } else if (obj[paramName] && typeof obj[paramName] === 'string'){
+                  // if property does exist and it's a string, convert it to an array
+                  obj[paramName] = [obj[paramName]];
+                  obj[paramName].push(paramValue);
+                } else {
+                  // otherwise add the property
+                  obj[paramName].push(paramValue);
+                }
+              }
+            }
+          }
+
+          return obj;
+        }
+
+		$("#search_form").submit(function(e){
+            e.preventDefault();
+
+            q = $("#q").val()
+
+            host = "{{ request.get_host }}";
+            path = "{{ request.path }}?q=" + q;
+            host_path = host + path;
+            final_url = "http://" + host_path;
+            location.href = final_url;
+
+        });
+
+		function update_url_param(param, page){
+			filter_accept = ['page', 'q']
+			new_url = '';
+
+			length = Object.keys(param).length;
+            counter = 0;
+
+			if(param.page){
+            	param.page = page;
+            }else{
+            	param["page"] = page;
+            }
+
+            console.log(param);
+
+			for(var i in param){
+				key = i;
+				value = param[i];
+
+				if(filter_accept.includes(key)){
+					if(counter == length){
+						new_url = new_url + key + "=" + value;
+					}else{
+						new_url = new_url + key + "=" + value + "&";
+					}
+				}else{
+
+				}
+				counter++
+
+			}
+			return new_url;
+		}
+
+
+		$("#pagination_id").on('click', 'a', function(e){
+            e.preventDefault();
+            page_id = $(this).attr('data-value');
+
+			all_param = getAllUrlParams();
+
+            new_url = update_url_param(all_param, page_id);
+
+            host = "{{ request.get_host }}";
+            path = "{{ request.path }}";
+            host_path = host + path;
+            final_url = "http://" + host_path + "?" + new_url;
+            console.log(final_url);
+            location.href = final_url
+        });
+	</script>
+{% endblock %}

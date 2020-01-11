@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign-in to your account{% endblock %}
+
+{% block body %}
+    <div class="ui stackable grid">
+        <div class="four wide centered column" style="margin-top: 30px;">
+            <form class="ui form" method="post">
+                {% csrf_token %}
+
+                {{ request.user.username }}
+
+                <h2>Sign in</h2>
+
+                <div class="field">
+                    <div class="ui left icon input">
+                        {{ form.username }}
+                        <i class="user icon"></i>
+                    </div>
+
+                    {% if form.errors.username %}
+                        {% for error in form.errors.username %}
+                            <div class="ui red message" style="margin-top: 10px; margin-bottom: 10px;">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <div class="ui left icon input">
+                        {{ form.password }}
+                        <i class="lock icon"></i>
+                    </div>
+
+                    {% if form.errors.password %}
+                        {% for error in form.errors.password %}
+                            <div class="ui red message" style="margin-top: 10px; margin-bottom: 10px;">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            <div class="ui red message" style="margin-top: 10px; margin-bottom: 10px;">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="ui green fluid button">Sign In</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Color pallete details{% endblock %}
+
+{% block body %}
+    <div class="ui stackable grid">
+        <div class="eight wide centered column" style="margin-top: 30px;">
+            <div class="ui segment">
+                <form method="post">
+                    <h3 style="float: left;">{{ color_pallete.name | upper }}
+                        <br /><span style="color: grey;">{{ color_pallete.date | date }}</span>
+                    </h3>
+
+                    <p style="float: right">
+                        {% csrf_token %}
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.username != color_pallete.user.username %}
+                                {% if not check_my_fav %}
+                                    <button name="add_to_fav" value="add_to_fav" class="ui tiny blue icon button">
+                                        Add to favorites
+                                    </button>
+                                {% else %}
+                                    <span style="color: red;">This pallete is allready in your favourite list</span>
+                                {% endif %}
+                            {% else %}
+                                <a href="#">Your own</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'account:sign_in' %}">Login to add favourate</a>
+                        {% endif %}
+                    </p>
+                    <p style="clear: both"></p>
+                    <div class="ui divider"></div>
+                </form>
+
+                {% for color in colors %}
+                    {{ color.color_code }}
+                    <div style="height: 80px; width: 100px; border: 1px solid red; margin-bottom: 10px; background-color: {{ color.color_code }}">
+                    </div>
+                {% endfor %}
+
+                {% if request.user.username == color_pallete.user.username %}
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <button type="submit" name="delete" value="delete" class="ui negative button" style="margin-top: 30px;">Delete</button>
+
+                        {% if color_pallete.is_private %}
+                            <button type="submit" name="public" value="public" class="ui blue button" style="margin-top: 30px;">Make public</button>
+                        {% else %}
+                            <button type="submit" name="private" value="private" class="ui blue button" style="margin-top: 30px;">Make private</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
